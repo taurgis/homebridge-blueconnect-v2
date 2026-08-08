@@ -1,27 +1,27 @@
-import { Service, PlatformAccessory, CharacteristicValue, Logging } from 'homebridge';
-import type { BlueConnectPlatform } from './blueConnectPlatform.js';
+
+
 import { attachCustomORPCharacteristic } from './characteristics/ORP';
 import { getMeasurementValue } from './measurements';
 
 export class PoolAccessory {
-  private service: Service | null = null;
-  private loggingService: { addEntry: (entry: { temp: number; humidity: number; time: number; pressure: number }) => void };
+   __init() {this.service = null}
+  
 
-  private currentTemperature = 25;
-  private currentORP = 750;
-  private currentPH = 7;
-  private currentConductivity = 0;
+   __init2() {this.currentTemperature = 25}
+   __init3() {this.currentORP = 750}
+   __init4() {this.currentPH = 7}
+   __init5() {this.currentConductivity = 0}
 
   constructor(
-        private readonly platform: BlueConnectPlatform,
-        private readonly accessory: PlatformAccessory & { log?: Logging },
-  ) {
+          platform,
+          accessory,
+  ) {;this.platform = platform;this.accessory = accessory;PoolAccessory.prototype.__init.call(this);PoolAccessory.prototype.__init2.call(this);PoolAccessory.prototype.__init3.call(this);PoolAccessory.prototype.__init4.call(this);PoolAccessory.prototype.__init5.call(this);
     this.accessory.log = this.platform.log;
     this.loggingService = new this.platform.fakeGatoHistoryService('weather', this.accessory, { storage: 'fs' });
 
     this.getPoolData().then(() => {
             // set accessory information
-            this.accessory.getService(this.platform.Service.AccessoryInformation)!
+            this.accessory.getService(this.platform.Service.AccessoryInformation)
               .setCharacteristic(this.platform.Characteristic.Manufacturer, 'BlueRiiot')
               .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.blue_device.hw_type)
               .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.blue_device_serial)
@@ -52,7 +52,7 @@ export class PoolAccessory {
   /**
    * Handle requests to get the current value of the "Current Temperature" characteristic
    */
-  async handleCurrentTemperatureGet(): Promise<CharacteristicValue> {
+  async handleCurrentTemperatureGet() {
     if(this.platform.blueRiotAPI.isAuthenticated()) {
       return this.currentTemperature;
     } else {
@@ -63,7 +63,7 @@ export class PoolAccessory {
   /**
    * Handle requests to get the current value of the "Current PH" characteristic
    */
-  async handleCurrentPHGet(): Promise<CharacteristicValue> {
+  async handleCurrentPHGet() {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
       return this.currentPH * 10;
     } else {
@@ -74,7 +74,7 @@ export class PoolAccessory {
   /**
      * Handle requests to get the current value of the "Current ORP" characteristic
      */
-  async handleCurrentORPGet(): Promise<CharacteristicValue> {
+  async handleCurrentORPGet() {
     if (this.platform.blueRiotAPI.isAuthenticated()) {
       return this.currentORP;
     } else {
@@ -106,7 +106,7 @@ export class PoolAccessory {
         return;
       }
 
-      const measurements: Array<{ name: string; value: string | number }> = lastMeasurement.data;
+      const measurements = lastMeasurement.data;
 
       this.currentTemperature = getMeasurementValue(this.platform.log, measurements, 'temperature', this.currentTemperature);
       this.currentORP = getMeasurementValue(this.platform.log, measurements, 'orp', this.currentORP);

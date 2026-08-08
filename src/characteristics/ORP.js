@@ -1,5 +1,5 @@
 
-import { API, Characteristic, Formats, Perms, Service } from 'homebridge';
+import { Formats, Perms, } from 'homebridge';
 
 
 const DISPLAY_NAME = 'ORP';
@@ -11,11 +11,11 @@ const UUID = 'E863F10F-079E-48FF-8F27-9C2605A29F52';
  * @param api The Homebridge {@link API} instance in use for the plug-in.
  * @returns The {@link Characteristic} instance.
  */
-export function attachCustomORPCharacteristic(target: Service, api: API): Characteristic {
-  let result: Characteristic;
+export function attachCustomORPCharacteristic(target, api) {
+  let result;
 
   if (target.testCharacteristic(DISPLAY_NAME)) {
-    result = target.getCharacteristic(DISPLAY_NAME)!;
+    result = target.getCharacteristic(DISPLAY_NAME);
   } else {
     result = target.addCharacteristic(new api.hap.Characteristic(DISPLAY_NAME, UUID, {
       format: Formats.UINT16,

@@ -1,37 +1,37 @@
-import type { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
+
 
 import { PoolAccessory } from './poolAccessory.js';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 
 import { BlueriiotAPI } from './api/blueriiot-api.js';
-import { CHEMISTRY_METRICS, ChemistryAccessory, ChemistryMetric } from './chemistryAccessory';
+import { CHEMISTRY_METRICS, ChemistryAccessory, } from './chemistryAccessory';
 import { WeatherAccessory } from './weatherAccessory';
 
-type BlueDeviceContext = {
-  blue_device_serial: string;
-  swimming_pool_id: string;
-  blue_device: {
-    hw_type: string;
-    fw_version_psoc: string;
-  };
-};
 
-export class BlueConnectPlatform implements DynamicPlatformPlugin {
-  public readonly Service: typeof Service;
-  public readonly Characteristic: typeof Characteristic;
-  public blueRiotAPI: BlueriiotAPI;
-  public fakeGatoHistoryService: {
-    new (type: string, accessory: PlatformAccessory, options: { storage: string }): { addEntry: (entry: { time: number; temp: number }) => void }
-  };
+
+
+
+
+
+
+
+
+export class BlueConnectPlatform  {
+  
+  
+  
+  
+
+
 
   // this is used to track restored cached accessories
-  public readonly accessories: PlatformAccessory[] = [];
+    __init() {this.accessories = []}
 
   constructor(
-        public readonly log: Logging,
-        public readonly config: PlatformConfig,
-        public readonly api: API,
-  ) {
+          log,
+          config,
+          api,
+  ) {;this.log = log;this.config = config;this.api = api;BlueConnectPlatform.prototype.__init.call(this);
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     this.fakeGatoHistoryService = require('fakegato-history')(this.api);
 
@@ -49,7 +49,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     this.blueRiotAPI = new BlueriiotAPI();
   }
 
-  configureAccessory(accessory: PlatformAccessory) {
+  configureAccessory(accessory) {
     this.log.info('Loading accessory from cache:', accessory.displayName);
 
     this.accessories.push(accessory);
@@ -80,15 +80,15 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
         this.log.debug('BlueConnect: Pools: ' + JSON.stringify(pools, null, 2));
         this.log.info('BlueConnect: Found ' + pools.length + ' pools');
 
-        const poolIds = pools.map((pool : { swimming_pool_id : string }) => pool.swimming_pool_id);
+        const poolIds = pools.map((pool ) => pool.swimming_pool_id);
 
-        poolIds.forEach((poolId : string) => {
+        poolIds.forEach((poolId ) => {
           this.blueRiotAPI.getSwimmingPoolBlueDevices(poolId).then((blueDevicesData) =>{
             const blueDevices = JSON.parse(blueDevicesData).data;
             this.log.debug('BlueConnect: BlueDevices: ' + JSON.stringify(blueDevices, null, 2));
             this.log.info('BlueConnect: Found ' + blueDevices.length + ' devices');
 
-            blueDevices.forEach((blueDevice : BlueDeviceContext) => {
+            blueDevices.forEach((blueDevice ) => {
               this.processBlueDevice(blueDevice);
               this.processChemistryAccessories(blueDevice);
             });
@@ -96,7 +96,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
             this.processWeatherAccessory(poolId);
           });
         });
-      }).catch((error : Error) =>{
+      }).catch((error ) =>{
         this.log.warn('We have issues getting the pools: ' + error);
       });
     }).catch( (error) =>{
@@ -104,7 +104,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     });
   }
 
-  private processWeatherAccessory(poolId: string) {
+   processWeatherAccessory(poolId) {
     if (this.config.weather) {
       const uuid = this.api.hap.uuid.generate('weather-' + poolId.substring(0, 10));
       const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
@@ -136,7 +136,7 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private processBlueDevice(blueDevice: BlueDeviceContext) {
+   processBlueDevice(blueDevice) {
     const uuid = this.api.hap.uuid.generate(blueDevice.blue_device_serial);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
@@ -157,13 +157,13 @@ export class BlueConnectPlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private processChemistryAccessories(blueDevice: BlueDeviceContext) {
+   processChemistryAccessories(blueDevice) {
     CHEMISTRY_METRICS.forEach((metric) => {
       this.processChemistryAccessory(blueDevice, metric);
     });
   }
 
-  private processChemistryAccessory(blueDevice: BlueDeviceContext, metric: ChemistryMetric) {
+   processChemistryAccessory(blueDevice, metric) {
     const uuid = this.api.hap.uuid.generate(`${blueDevice.blue_device_serial}-chemistry-${metric}`);
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
     const accessoryName = `${blueDevice.blue_device_serial}-chemistry-${metric}`;
